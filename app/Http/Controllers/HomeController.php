@@ -24,6 +24,6 @@ class HomeController extends Controller
     public function index()
     {
         $categories = Category::count();
-        return view('backend.layouts.dashboard', compact('categories'));
+        return view('backend.admin.index', compact('categories'));
     }
 }

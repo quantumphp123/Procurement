@@ -1,150 +1,54 @@
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Admin - Dashboard')</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>@yield('title', 'Admin Dashboard')</title>
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="{{ asset('backend/plugins/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-    <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="{{ asset('backend/plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
-    <!-- DataTables -->
-    <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet"
-        href="{{ asset('backend/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/plugins/datatables-buttons/css/buttons.bootstrap4.min.css') }}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('backend/dist/css/adminlte.min.css') }}">
+    <!-- Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet">
-    <style>
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
 
-        .wrapper {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .content-wrapper,
-
-
-        {
-        flex: 1 0 auto;
-        }
-
-        .main-footer {
-            flex-shrink: 0;
-        }
-
-
-        /* Add common table styles for center alignment */
-        table.table td,
-        table.table th {
-            text-align: center !important;
-            vertical-align: middle;
-        }
-    </style>
-    @yield('style')
-
-
-
+    @yield('styles')
 </head>
 
-<body class="hold-transition sidebar-mini">
-    <div class="wrapper">
+<body x-data="{ page: 'ecommerce', 'loaded': true, 'darkMode': false, 'stickyMenu': false, 'sidebarToggle': false, 'scrollTop': false }" x-init="darkMode = JSON.parse(localStorage.getItem('darkMode'));
+$watch('darkMode', value => localStorage.setItem('darkMode', JSON.stringify(value)))" :class="{ 'dark bg-gray-900': darkMode === true }">
 
-        <!-- The Modal -->
-        <div id="myModal" class="modal">
+    <!-- Preloader -->
+    @include('backend.layouts.partials.preloader')
 
-            <!-- The Close Button -->
-            <span class="close">&times;</span>
+    <!-- Page Wrapper -->
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        @include('backend.layouts.partials.sidebar')
 
-            <!-- Modal Content (The Image) -->
-            <img class="modal-content" id="img01">
+        <!-- Content Area -->
+        <div class="relative flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
+            <!-- Small Device Overlay -->
+            @include('backend.layouts.partials.overlay')
 
-            <!-- Modal Caption (Image Text) -->
-            <div id="caption"></div>
+            <!-- Header -->
+            @include('backend.layouts.partials.header')
+
+            <!-- Main Content -->
+            <main>
+                <div class="p-4 mx-auto max-w-7xl md:p-6">
+                    @yield('content')
+                </div>
+            </main>
         </div>
-
-        <!-- Navbar -->
-        @include('backend.layouts.navbar')
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        @include('backend.layouts.sidebar')
-
-        <!-- Content Wrapper. Contains page content -->
-        @yield('content')
-        <!-- /.content-wrapper -->
-
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-            <div class="p-3">
-                <h5>Title</h5>
-                <p>Sidebar content</p>
-            </div>
-        </aside>
-        <!-- /.control-sidebar -->
-
-        <!-- Main Footer -->
-        <footer>
-            <!-- To the right -->
-
-        </footer>
     </div>
-    <!-- ./wrapper -->
 
-    <!-- REQUIRED SCRIPTS -->
-    @yield('script')
-
-
-    <script src="{{ asset('backend/plugins/jquery/jquery.min.js') }}"></script>
-    <!-- Bootstrap 4 -->
-    {{--  <script src="{{ asset('backend/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>  --}}
-    <!-- AdminLTE App -->
-    <script src="{{ asset('backend/dist/js/adminlte.min.js') }}"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <!-- DataTables -->
-    <script src="{{ asset('backend/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/jszip/jszip.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('backend/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"
-        integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <!-- Bootstrap JS (necessary for the modal) -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
-
-
-
-
+    <!-- Scripts -->
     <script>
         // Toastr configuration
         toastr.options = {
@@ -184,44 +88,7 @@
         @endif
     </script>
 
-
-    <script>
-        document.querySelectorAll('.toggle-password').forEach(function(el) {
-            el.addEventListener('click', function() {
-                const input = document.querySelector(el.getAttribute('toggle'));
-                const icon = el.querySelector('i');
-
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('fa-eye');
-                    icon.classList.add('fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('fa-eye-slash');
-                    icon.classList.add('fa-eye');
-                }
-            });
-        });
-    </script>
-
-    <script>
-        $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": true,
-            "ordering": false,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    </script>
-
-
-
-
-
-
-
+    @stack('scripts')
 </body>
 
 </html>
