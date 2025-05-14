@@ -3,10 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PasswordController;
-use App\Http\Controllers\Admin\HomeController;
+use App\Http\Controllers\HomeController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::get('/dashboard', function () {
+//     return view('backend.admin.index');
+// });
+
 
 Auth::routes();
 
