@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->unsignedBigInteger('role_id')->after('id')->nullable(); // Default to 'Customer'
-            $table->foreign('role_id')->references('id')->on('roles');
+            if (!Schema::hasColumn('users', 'role_id')) {
+                $table->unsignedBigInteger('role_id')->nullable()->after('id');
+            }
+
+            if (!Schema::hasColumn('users', 'phone_number')) {
+                $table->string('phone_number')->nullable()->after('email');
+            }
         });
     }
 
@@ -23,7 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('users', 'role_id')) {
+                $table->dropColumn('role_id');
+            }
+
+            if (Schema::hasColumn('users', 'phone_number')) {
+                $table->dropColumn('phone_number');
+            }
         });
     }
 };
