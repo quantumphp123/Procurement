@@ -30,6 +30,8 @@ Auth::routes();
  * ------------------------------------
  * Routes specific to sellers with email verification functionality
  */
+
+// TODO:: Need to remove this routes
 Route::prefix('seller')->group(function () {
     // Show email verification notice page - requires auth
     Route::get('/email/verify', function () {

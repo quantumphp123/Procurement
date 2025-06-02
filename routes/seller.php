@@ -1,11 +1,13 @@
 <?php
 
 
+use App\Http\Controllers\Seller\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Seller\EnquiryController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\Seller\Auth\AuthController;
 use App\Http\Controllers\Seller\Auth\LoginController;
+use App\Http\Controllers\Seller\ModifiedOrdersController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 
@@ -84,10 +86,6 @@ Route::post('/reset-password', [NewPasswordController::class, 'store'])
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Dashboard Route
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-
     // Step 2 Registration Routes
     Route::get('/register/step-2', [AuthController::class, 'showStepTwoForm'])->name('register.step2.form');
     Route::post('/register/step-2', [AuthController::class, 'processStepTwo'])->name('register.step2');
@@ -96,7 +94,61 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/register/step-3', [AuthController::class, 'showStepThreeForm'])->name('register.step3.form');
     Route::post('/register/step-3', [AuthController::class, 'processStepThree'])->name('register.step3');
 
+    // Step 4 Plans Routes
+    Route::get('/register/plans', [AuthController::class, 'showPlans'])->name('register.plans');
 
-    // Enquiries Routes
+
+    // Dashboard Route
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enquiries Routes
+    |--------------------------------------------------------------------------
+    |
+    | User must be logged in to access these routes
+    |
+    */
+
     Route::get('/enquiries', [EnquiryController::class, 'index'])->name('enquiries.index');
+    Route::get('/enquiries/{id}', [EnquiryController::class, 'show'])->name('enquiries.show');
+    Route::post('/submit-quotation/{id}', [EnquiryController::class, 'submitQuotation'])->name('enquiries.submit-quotation');
+    Route::post('enquiries/{enquiry}/decline', [EnquiryController::class, 'declineEnquiry'])->name('enquiries.decline');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Products Routes
+    |--------------------------------------------------------------------------
+    | User must be logged in to access these routes
+    |
+    */
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modified Orders Routes
+    |--------------------------------------------------------------------------
+    | User must be logged in to access these routes
+    |
+    */
+    Route::get('/modified-orders', [ModifiedOrdersController::class, 'index'])->name('modified-orders.index');
+    Route::get('/modified-orders/{id?}', [ModifiedOrdersController::class, 'show'])->name('modified-orders.show');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | plans Routes
+    |--------------------------------------------------------------------------
+    | User must be logged in to access these routes
+    |
+    */
+
+
+    Route::get('/upgrade-plan', function () {
+        return view('seller.upgrade-plan');
+    })->name('upgrade.plan');
 });

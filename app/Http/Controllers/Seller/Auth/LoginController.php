@@ -36,14 +36,20 @@ class LoginController extends Controller
             if (Auth::attempt($credentials, $request->filled('remember'))) {
                 // Regenerate session for security
                 $request->session()->regenerate();
-                // Return success response
+                // Return success response with toast
                 return redirect()->route('seller.dashboard')->with('success', 'Login successful!');
             }
 
-            // Authentication failed
-            return redirect()->back()->with('error', 'These credentials do not match our records.');
+            // Authentication failed - redirect back with validation error
+            return redirect()->back()
+                ->withInput($request->only('email', 'remember'))
+                ->withErrors([
+                    'email' => 'These credentials do not match our records.',
+                ]);
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'An error occurred. Please try again later.');
+            return redirect()->back()
+                ->withInput($request->only('email', 'remember'))
+                ->with('error', 'An error occurred. Please try again later.');
         }
     }
 

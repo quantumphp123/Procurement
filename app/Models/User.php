@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
@@ -94,5 +95,24 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $this->hasCompletedBusinessInfo() && $this->hasCompletedBankInfo();
+    }
+
+    public function enquiries()
+    {
+        return $this->belongsToMany(Enquiry::class, 'enquiry_seller')
+            ->withPivot('status', 'responded_at')
+            ->withTimestamps();
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    public function notifiedEnquiries()
+    {
+        return $this->belongsToMany(Enquiry::class, 'enquiry_seller', 'seller_id', 'enquiry_id')
+            ->withPivot('status', 'notified_at', 'responded_at')
+            ->withTimestamps();
     }
 }

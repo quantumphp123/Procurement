@@ -48,7 +48,7 @@ public function boot()
         Route::middleware('web')
             ->prefix('seller')
             ->name('seller.')
-            ->group(base_path('routes/seller/web.php'));
+            ->group(base_path('routes/seller.php'));
 
         // Load API routes
         Route::prefix('api')

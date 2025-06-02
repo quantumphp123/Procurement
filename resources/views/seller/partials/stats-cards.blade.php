@@ -4,11 +4,11 @@
        <div class=" flex items-center p-4 bg-white dark:bg-gray-800 rounded-lg xl:rounded-r-none">
            <div class="p-3 mr-4 rounded-full dark:text-orange-100 dark:bg-orange-500"
                style="background: linear-gradient(90deg, rgba(198, 215, 254, 0.12) 0%, rgba(128, 152, 249, 0.12) 50%, rgba(62, 87, 218, 0.12) 100%);">
-               <img src="{{asset('img/icons/briefcase.svg')}}" height="16" alt="briefcase">
+               <img src="{{ asset('img/icons/briefcase.svg') }}" height="16" alt="briefcase">
            </div>
            <div>
                <p class="text-3xl font-bold text-blue-700 dark:text-gray-200 mb-1">
-                   324
+                   {{ $totalEnquiries }}
                </p>
                <p class="mb-2 text-md font-medium text-gray-900 dark:text-gray-400">
                    Total Enquiries

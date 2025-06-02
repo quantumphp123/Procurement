@@ -28,4 +28,20 @@ class LoginRequest extends FormRequest
             'password' => 'required|string|min:8',
         ];
     }
+
+    /**
+     * Custom validation messages
+     *
+     * @return array
+     */
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Email is required.',
+            'email.email' => 'Please enter a valid email address.',
+            'email.max' => 'Email must not exceed 256 characters.',
+            'password.required' => 'Password is required.',
+            'password.min' => 'Password must be at least 8 characters.',
+        ];
+    }
 }

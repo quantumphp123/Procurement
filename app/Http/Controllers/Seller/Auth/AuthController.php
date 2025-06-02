@@ -64,7 +64,7 @@ class AuthController extends Controller
             return redirect()->route('seller.register.step2.form')
                 ->with('success', 'Personal details saved successfully! Please complete the next step.');
         } catch (\Exception $e) {
-             Log::error('Registration failed: ' . $e->getMessage());
+            Log::error('Registration failed: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput($request->except('password', 'password_confirmation'))
                 ->with('error', 'Registration failed. Please try again.');
@@ -197,7 +197,7 @@ class AuthController extends Controller
             $existingBankDetails = BankDetail::where('user_id', $user->id)->first();
 
             if ($existingBankDetails) {
-                return redirect()->route('seller.dashboard')
+                return redirect()->route('seller.register.plans')
                     ->with('info', 'Bank details already exist. You cannot modify them at this stage.');
             }
 
@@ -212,12 +212,22 @@ class AuthController extends Controller
                 'bank_info_completed' => true
             ]);
 
-            return redirect()->route('seller.dashboard')
-                ->with('success', 'Registration completed successfully! Welcome to your dashboard.');
+            return redirect()->route('seller.register.plans')
+                ->with('success', 'Bank Details completed successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'We encountered an issue processing your request. Please try again.')
                 ->withInput();
         }
+    }
+
+    // Plan selection page
+    public function showPlans()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        return view('seller.plan');
     }
 }

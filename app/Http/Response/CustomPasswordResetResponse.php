@@ -7,17 +7,10 @@ use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseCont
 
 class CustomPasswordResetResponse implements PasswordResetResponseContract
 {
-    protected $status;
-
-    public function __construct(string $status)
-    {
-        $this->status = $status;
-    }
-
     public function toResponse($request)
     {
         return $request->wantsJson()
-            ? new JsonResponse(['message' => trans($this->status)], 200)
-            : redirect()->to(route('seller.login'))->with('status', trans($this->status));
+            ? new JsonResponse(['message' => 'Your password has been reset successfully!'], 200)
+            : redirect()->route('seller.login')->with('success', 'Your password has been reset successfully! Please login with your new password.');
     }
 }

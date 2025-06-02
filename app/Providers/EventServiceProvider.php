@@ -12,6 +12,9 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        'App\Events\EnquiryCreated' => [
+            'App\Listeners\NotifySellersAboutEnquiry',
+        ],
     ];
 
     public function boot(): void
