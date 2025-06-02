@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+@layer components {
+  .color {
+    background-color: #FF7A59;
+  }
+  .bg-gradient {
+    background: linear-gradient(90deg,#c6d7fec1 0%, #ffffff 100%);
+  }
+   .bg-gradient-reverse {
+    background: linear-gradient(90deg,#ffffff 0%, #c6d7fec1 100%);
+  }
+  .footer-color{
+    background-color: #EDF2FF;
+  }
+  .inner-shadow {
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+  }
+}
+@theme {
+  --font-roboto: "Onest", sans-serif; 
+}

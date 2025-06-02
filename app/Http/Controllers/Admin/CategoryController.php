@@ -16,12 +16,12 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::latest()->get();
-        return view('backend.layouts.admin.categories.index', compact('categories'));
+        return view('admin.categories.index', compact('categories'));
     }
 
     public function create()
     {
-        return view('backend.layouts.admin.categories.create');
+        return view('admin.categories.create');
     }
 
     public function store(CategoryRequest $request)
@@ -41,7 +41,7 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        return view('backend.layouts.admin.categories.edit', compact('category'));
+        return view('admin.categories.edit', compact('category'));
     }
 
     public function update(CategoryRequest $request, Category $category)
