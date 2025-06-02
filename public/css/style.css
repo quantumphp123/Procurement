@@ -1,0 +1,30 @@
+[x-cloak] {
+    display: none !important;
+}
+
+body {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+body.js-ready {
+    opacity: 1;
+}
+
+.truncate-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 1.5em;
+}
+
+.truncate-text.expanded {
+    -webkit-line-clamp: unset;
+    max-height: none;
+}
+
+.truncate-text.truncated {
+    cursor: pointer;
+}
