@@ -2,15 +2,27 @@
 
 namespace App\Http\Responses;
 
-use Illuminate\Http\JsonResponse;
-use Laravel\Fortify\Contracts\PasswordResetResponse as PasswordResetResponseContract;
+use Laravel\Fortify\Contracts\PasswordResetResponse;
 
-class CustomPasswordResetResponse implements PasswordResetResponseContract
+class CustomPasswordResetResponse implements PasswordResetResponse
 {
+    /**
+     * Create an HTTP response that represents the object.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function toResponse($request)
     {
-        return $request->wantsJson()
-            ? new JsonResponse(['message' => 'Your password has been reset successfully!'], 200)
-            : redirect()->route('seller.login')->with('success', 'Your password has been reset successfully! Please login with your new password.');
+        $user = $request->user();
+
+        // Role based redirect after password reset
+        if ($user && $user->role_id == 3) {
+            // Seller
+            return redirect()->route('seller.login')->with('status', 'Password reset successfully!');
+        } else {
+            // Admin or default
+            return redirect()->route('login')->with('status', 'Password reset successfully!');
+        }
     }
 }

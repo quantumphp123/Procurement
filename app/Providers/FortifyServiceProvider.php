@@ -11,7 +11,19 @@ use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    public function register(): void {}
+    public function register(): void
+    {
+        // Register custom responses in the register method
+        $this->app->singleton(
+            VerifyEmailViewResponse::class,
+            CustomVerifyEmailViewResponse::class
+        );
+
+        $this->app->singleton(
+            PasswordResetResponse::class,
+            CustomPasswordResetResponse::class
+        );
+    }
 
     public function boot()
     {
@@ -23,20 +35,5 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetPasswordView(function ($request) {
             return view('seller.reset-password', ['request' => $request]);
         });
-
-        Fortify::verifyEmailView(function () {
-            return view('seller.verify-email');
-        });
-
-
-        $this->app->singleton(
-            VerifyEmailViewResponse::class,
-            CustomVerifyEmailViewResponse::class
-        );
-
-        $this->app->singleton(
-            PasswordResetResponse::class,
-            CustomPasswordResetResponse::class
-        );
     }
 }

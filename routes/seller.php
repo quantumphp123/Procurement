@@ -1,7 +1,6 @@
 <?php
 
-
-use App\Http\Controllers\Seller\ProductController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Seller\EnquiryController;
 use App\Http\Controllers\Seller\DashboardController;
@@ -10,6 +9,8 @@ use App\Http\Controllers\Seller\Auth\LoginController;
 use App\Http\Controllers\Seller\ModifiedOrdersController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\Seller\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,38 @@ use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Email Verification Routes for Sellers
+|--------------------------------------------------------------------------
+|
+| Routes for seller email verification
+|
+*/
+
+// Show email verification notice page - requires auth (Seller specific)
+Route::get('/email/verify', function () {
+    return view('seller.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+// Handle the actual verification - middleware applied here only (Seller specific)
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    // After successful verification, redirect based on user type
+    $user = $request->user();
+    if ($user->role_id == 3) {
+        return redirect()->route('seller.register.step2.form')->with('success', 'Email verified successfully!');
+    } else {
+        return redirect('/home')->with('success', 'Email verified successfully!');
+    }
+})->middleware(['signed', \App\Http\Middleware\EmailVerificationRedirect::class])->name('verification.verify');
+
+// Resend verification email (Seller specific)
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 
 /*
 |--------------------------------------------------------------------------

@@ -3,7 +3,6 @@
 namespace App\Http\Responses;
 
 use Laravel\Fortify\Contracts\VerifyEmailViewResponse;
-use Illuminate\Http\Request;
 
 class CustomVerifyEmailViewResponse implements VerifyEmailViewResponse
 {
@@ -15,6 +14,15 @@ class CustomVerifyEmailViewResponse implements VerifyEmailViewResponse
      */
     public function toResponse($request)
     {
-        return response()->view('seller.verify-email');
+        $user = $request->user();
+
+        // Role based email verification view
+        if ($user && $user->role_id == 3) {
+            // Seller
+            return view('seller.verify-email');
+        } else {
+            // Admin or default
+            return view('auth.verify-email');
+        }
     }
 }
