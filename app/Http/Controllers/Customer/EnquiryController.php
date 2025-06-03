@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\CustomerEnquiryRequest;
 use App\Http\Requests\Customer\EnquiryItemRequest;
+use App\Http\Requests\Customer\SubmitEnquiryFormRequest;
 use App\Models\Admin\Category;
 use App\Models\Customer\Enquiry;
 use App\Models\Customer\EnquiryItem;
@@ -93,62 +94,7 @@ class EnquiryController extends Controller
     /**
      * Store a newly created enquiry with items in storage.
      */
-    // public function storeItems(EnquiryItemRequest $request)
-    // {
-    //     try {
-    //         DB::beginTransaction();
-
-    //         // Get the latest enquiry_number and increment
-    //         $latest = Enquiry::orderBy('id', 'desc')->first();
-    //         $number = 1;
-
-    //         if ($latest && preg_match('/ENQ-(\d+)/', $latest->enquiry_number, $matches)) {
-    //             $number = (int)$matches[1] + 1;
-    //         }
-
-    //         $enquiryNumber = 'ENQ-' . str_pad($number, 4, '0', STR_PAD_LEFT);
-
-    //         // Create new enquiry
-    //         $enquiry = Enquiry::create([
-    //             'user_id' => auth()->id(),
-    //             'enquiry_number' => $enquiryNumber
-    //         ]);
-
-    //         // Store the enquiry items
-    //         foreach ($request->items as $item) {
-    //             EnquiryItem::create([
-    //                 'enquiry_id' => $enquiry->id,
-    //                 'user_id' => auth()->id(),
-    //                 'category_id' => $item['category_id'],
-    //                 'item_description' => $item['item_description'],
-    //                 'manufacturer' => $item['manufacturer'],
-    //                 'qty' => $item['qty'],
-    //                 'remark' => $item['remark'] ?? null,
-    //             ]);
-    //         }
-
-    //         DB::commit();
-
-    //         // Fire the enquiry submitted event
-    //         event(new EnquirySubmitted($enquiry));
-
-    //         // Redirect back to the form with success message and enquiry number
-    //         return redirect()->route('submit.enquiry.form')
-    //             ->with('message', 'You have successfully submitted enquiry document.')
-    //             ->with('enquiryNumber', $enquiryNumber) // Pass enquiry number to session
-    //             ->with('alert-type', 'success');
-
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return redirect()->back()
-    //             ->with('message', 'Error adding enquiry items. Please try again.')
-    //             ->with('alert-type', 'error')
-    //             ->withInput();
-    //     }
-    // }
-
-
-    public function storeItems(EnquiryItemRequest $request)
+    public function storeItems(SubmitEnquiryFormRequest $request)
     {
         try {
             DB::beginTransaction();
@@ -204,21 +150,28 @@ class EnquiryController extends Controller
                 
             } else {
                 // Create new enquiry
+                // Get the latest enquiry ID and increment it
+                $latestEnquiry = Enquiry::orderBy('id', 'desc')->first();
+                $nextId = $latestEnquiry ? $latestEnquiry->id + 1 : 1;
                 $userId = auth()->id();
+                
+                // Get the latest sequence number for this user
                 $latestUserEnquiry = Enquiry::where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
                     ->first();
-                    
-                $number = 1;
+                
+                $sequence = 1;
                 if ($latestUserEnquiry && preg_match('/ENQ_\d+_(\d+)/', $latestUserEnquiry->enquiry_number, $matches)) {
-                    $number = (int)$matches[1] + 1;
+                    $sequence = (int)$matches[1] + 1;
                 }
                 
-                $enquiryNumber = 'ENQ_' . $userId . '_' . str_pad($number, 4, '0', STR_PAD_LEFT);
+                // Generate enquiry number with user ID and sequence
+                $enquiryNumber = 'ENQ_' . $userId . '_' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
                 
                 // Create new enquiry with draft status
                 $enquiry = Enquiry::create([
-                    'user_id' => auth()->id(),
+                    'id' => $nextId, // Explicitly set the ID
+                    'user_id' => $userId,
                     'enquiry_number' => $enquiryNumber,
                     'drafted' => $isDraft
                 ]);
