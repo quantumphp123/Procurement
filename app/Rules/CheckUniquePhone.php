@@ -28,8 +28,8 @@ class CheckUniquePhone implements Rule
     {
         if ($value !== null) { // Check uniqueness only if value is not null
             $normalizedPhone = $this->normalizePhoneNumber($value);
-            $existsWithPrefix = User::where('phone_number', $normalizedPhone)->exists();
-            $existsWithoutPrefix = User::where('phone_number', substr($normalizedPhone, 2))->exists(); // Remove the +1 prefix for comparison
+            $existsWithPrefix = User::where('phone', $normalizedPhone)->exists();
+            $existsWithoutPrefix = User::where('phone', substr($normalizedPhone, 2))->exists(); // Remove the +1 prefix for comparison
             if($existsWithPrefix || $existsWithoutPrefix){
                 return false;
             }

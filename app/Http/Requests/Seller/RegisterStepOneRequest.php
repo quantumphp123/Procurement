@@ -24,7 +24,7 @@ class RegisterStepOneRequest extends FormRequest
     {
         return [
             'full_name' => ['required', 'string', 'max:255'],
-            'phone_number' => [
+            'phone' => [
                 'required',
                 'string',
                 'regex:/^[0-9]{10,15}$/',
@@ -51,9 +51,9 @@ class RegisterStepOneRequest extends FormRequest
             'email.email' => 'Please enter a valid email address',
             'email.max' => 'Email cannot exceed 255 characters',
             'email.unique' => 'This email is already registered. Please use another email or login.',
-            'phone_number.required' => 'Mobile number is required',
-            'phone_number.unique' => 'This mobile number is already registered. Please use another number or login.',
-            'phone_number.regex' => 'Please enter a valid phone number with only digits.',
+            'phone.required' => 'Mobile number is required',
+            'phone.unique' => 'This mobile number is already registered. Please use another number or login.',
+            'phone.regex' => 'Please enter a valid phone number with only digits.',
             'password.required' => 'Password is required',
             'password.min' => 'Password must be at least 8 characters',
             'password.confirmed' => 'Password confirmation does not match',

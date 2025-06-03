@@ -24,9 +24,16 @@ class RegisterStepTwoRequest extends FormRequest
         return [
             'trade_license_number' => 'required|string|max:255',
             'vat' => 'required|string|max:255',
-            'product_category' => 'required|string|max:255',
+            'product_category' => 'required|exists:categories,id',
             'contact_person' => 'required|string|max:255',
             'office_address' => 'required|string|max:1000',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'product_category.exists' => 'Please select a valid product category.',
         ];
     }
 }

@@ -279,27 +279,14 @@
                                     @enderror
                                 </div>
 
-                                <!-- Product Name -->
-                                <div class="mb-4">
-                                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
-                                        Product Name <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="text" id="name" name="name" placeholder="Enter Product Name"
-                                        value="{{ old('name') }}"
-                                        class="w-full border text-sm @error('name') border-red-500 @else border-gray-300 @enderror rounded-md px-4 py-2 focus:border-0 focus:outline-none focus:ring-2 @error('name') focus:ring-red-500 @else focus:ring-orange-500 @enderror">
-                                    @error('name')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
                                 <!-- Upload Image -->
                                 <div class="mb-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">
-                                        Upload Image
+                                        Upload Image <span class="text-red-500">*</span>
                                     </label>
 
-                                    <div class="border-2 border-dashed @error('image') border-red-300 @else border-gray-300 @enderror rounded-md p-6 text-center cursor-pointer hover:border-orange-400"
-                                        onclick="document.getElementById('image').click()">
+                                    <div
+                                        class="border-2 border-dashed ... rounded-md p-6 text-center cursor-pointer hover:border-orange-400">
                                         <input type="file" id="image" name="image" class="hidden"
                                             accept="image/*" />
                                         <label for="image" class="block text-sm text-gray-500 cursor-pointer">

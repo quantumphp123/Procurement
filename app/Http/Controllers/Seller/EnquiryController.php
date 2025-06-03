@@ -11,33 +11,45 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Seller\SubmitQuotationRequest;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class EnquiryController extends Controller
 {
-    // Display enquiries
+    /**
+     * Display enquiries assigned to this seller
+     */
     public function index(Request $request)
     {
-        // Get all category IDs for the authenticated seller's products
-        $sellerCategoryIds = Product::where('user_id', Auth::id())
-            ->pluck('category_id')
-            ->unique()
-            ->toArray();
+        $sellerId = Auth::id();
 
-        // Get enquiries that have items in the seller's product categories
-        $query = Enquiry::whereHas('enquiry_items', function ($q) use ($sellerCategoryIds) {
-            $q->whereIn('category_id', $sellerCategoryIds);
-        })->with(['user']);
+        // Get enquiries assigned to this seller through pivot table
+        $query = Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })
+        ->with([
+            'user',
+            'enquiry_items.category',
+            'sellers' => function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            }
+        ]);
 
-        // Apply search filter if search parameter is present and not empty
+        // Apply search filter
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                // Search by enquiry number or company name or user name
                 $q->where('enquiry_number', 'like', "%{$search}%")
                     ->orWhereHas('user', function ($userQuery) use ($search) {
                         $userQuery->where('name', 'like', "%{$search}%");
-                        //->orWhere('company_name', 'like', "%{$search}%");
                     });
+            });
+        }
+
+        // Filter by status if provided
+        if ($request->has('status') && !empty($request->status)) {
+            $query->whereHas('sellers', function ($q) use ($sellerId, $request) {
+                $q->where('seller_id', $sellerId)
+                  ->where('enquiry_seller.status', $request->status);
             });
         }
 
@@ -46,37 +58,57 @@ class EnquiryController extends Controller
         return view('seller.enquiries.index', compact('enquiries'));
     }
 
-    // Show details of a specific enquiry by its ID
+    /**
+     * Show details of a specific enquiry
+     */
     public function show($id)
     {
-        // Get seller's category IDs to filter enquiry items
-        $sellerCategoryIds = Product::where('user_id', Auth::id())
+        $sellerId = Auth::id();
+
+        // Get seller's category IDs
+        $sellerCategoryIds = Product::where('user_id', $sellerId)
             ->pluck('category_id')
             ->unique()
             ->toArray();
 
-        $enquiry = Enquiry::with([
+        // Get enquiry that is assigned to this seller
+        $enquiry = Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+            $q->where('seller_id', $sellerId);
+        })
+        ->with([
             'user',
             'enquiry_items' => function ($query) use ($sellerCategoryIds) {
-                // Only show enquiry items that match seller's product categories
+                // Only show relevant items for this seller
                 $query->whereIn('category_id', $sellerCategoryIds);
             },
-            'enquiry_items.category'
+            'enquiry_items.category',
+            'sellers' => function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            }
         ])
-            ->findOrFail($id);
+        ->findOrFail($id);
+
+        // Check if seller has access to this enquiry
+        if (!$enquiry->isAssignedToSeller($sellerId)) {
+            abort(403, 'You do not have access to this enquiry.');
+        }
 
         return view('seller.enquiries.show', compact('enquiry'));
     }
 
-    // Submit quotation
+    /**
+     * Submit quotation
+     */
     public function submitQuotation(SubmitQuotationRequest $request, $enquiryId)
     {
         try {
-            // Validate request
+            $sellerId = Auth::id();
             $validated = $request->validated();
 
-            // Fetch the enquiry
-            $enquiry = Enquiry::findOrFail($enquiryId);
+            // Check if seller has access to this enquiry
+            $enquiry = Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            })->findOrFail($enquiryId);
 
             // Calculate totals
             $totalPrice = 0;
@@ -93,10 +125,12 @@ class EnquiryController extends Controller
             $vatAmount = ($vatPercentage / 100) * $discountedPrice;
             $finalPrice = $discountedPrice + $vatAmount;
 
+            DB::beginTransaction();
+
             // Create quotation
             $quotation = Quotation::create([
                 'enquiry_id' => $enquiry->id,
-                'user_id' => Auth::id(),
+                'user_id' => $sellerId,
                 'quotation_number' => 'QTN-' . strtoupper(uniqid()),
                 'total_price' => $totalPrice,
                 'discount_percentage' => $discountPercentage,
@@ -121,16 +155,24 @@ class EnquiryController extends Controller
                 ]);
             }
 
-            // Update enquiry status
-            $enquiry->update(['status' => 'quoted']);
+            // Update pivot table status
+            $enquiry->sellers()->updateExistingPivot($sellerId, [
+                'status' => 'quoted',
+                'responded_at' => now()
+            ]);
 
-            // Return response
+            DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Quotation submitted successfully!',
                 'redirect' => route('seller.enquiries.index'),
             ]);
-        }catch (\Exception $e) {
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Quotation submission error: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while submitting the quotation. Please try again.'
@@ -138,26 +180,30 @@ class EnquiryController extends Controller
         }
     }
 
-
     /**
      * Decline an enquiry
      */
     public function declineEnquiry($enquiryId)
     {
         try {
-            $enquiry = Enquiry::findOrFail($enquiryId);
+            $sellerId = Auth::id();
 
-            // Update enquiry status to declined
-            $enquiry->update([
+            $enquiry = Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            })->findOrFail($enquiryId);
+
+            // Update pivot table status to declined
+            $enquiry->sellers()->updateExistingPivot($sellerId, [
                 'status' => 'declined',
-                'declined_at' => now(),
-                'declined_by' => Auth::id() // Optional: track who declined it
+                'responded_at' => now()
             ]);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Enquiry declined successfully!',
                 'redirect' => route('seller.enquiries.index')
             ]);
+
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -171,5 +217,33 @@ class EnquiryController extends Controller
                 'message' => 'An error occurred while declining the enquiry.'
             ], 500);
         }
+    }
+
+    /**
+     * Get seller's enquiry statistics
+     */
+    public function getStats()
+    {
+        $sellerId = Auth::id();
+
+        $stats = [
+            'total' => Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            })->count(),
+
+            'pending' => Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId)->where('enquiry_seller.status', 'pending');
+            })->count(),
+
+            'quoted' => Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId)->where('enquiry_seller.status', 'quoted');
+            })->count(),
+
+            'declined' => Enquiry::whereHas('sellers', function ($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId)->where('enquiry_seller.status', 'declined');
+            })->count(),
+        ];
+
+        return response()->json($stats);
     }
 }

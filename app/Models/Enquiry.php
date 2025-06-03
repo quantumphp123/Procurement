@@ -29,11 +29,24 @@ class Enquiry extends Model
     {
         return $this->hasMany(EnquiryItem::class);
     }
-    public function sellers()
-{
-    return $this->belongsToMany(User::class, 'enquiry_seller')
-                ->withPivot('status', 'responded_at')
-                ->withTimestamps();
-}
 
+    // Many-to-Many relationship with Sellers through pivot table
+    public function sellers()
+    {
+        return $this->belongsToMany(User::class, 'enquiry_seller', 'enquiry_id', 'seller_id')
+                    ->withPivot('status', 'responded_at')
+                    ->withTimestamps();
+    }
+
+    // Get sellers for specific status
+    public function getSellersWithStatus($status)
+    {
+        return $this->sellers()->wherePivot('status', $status)->get();
+    }
+
+    // Check if enquiry is assigned to specific seller
+    public function isAssignedToSeller($sellerId)
+    {
+        return $this->sellers()->where('seller_id', $sellerId)->exists();
+    }
 }

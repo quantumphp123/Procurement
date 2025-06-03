@@ -110,12 +110,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasCompletedBusinessInfo() && $this->hasCompletedBankInfo();
     }
 
+    /**
+     * Enquiries relationship
+     */
     public function enquiries()
     {
         return $this->belongsToMany(Enquiry::class, 'enquiry_seller')
             ->withPivot('status', 'responded_at')
             ->withTimestamps();
     }
+
+    /**
+     * Products relationship
+     */
 
     public function products()
     {
@@ -127,5 +134,23 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsToMany(Enquiry::class, 'enquiry_seller', 'seller_id', 'enquiry_id')
             ->withPivot('status', 'notified_at', 'responded_at')
             ->withTimestamps();
+    }
+
+    /**
+     * Seller's enquiries through pivot table
+     */
+    public function sellerEnquiries()
+    {
+        return $this->belongsToMany(Enquiry::class, 'enquiry_seller', 'seller_id', 'enquiry_id')
+            ->withPivot('status', 'responded_at')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get seller's categories from their products
+     */
+    public function getSellerCategoriesAttribute()
+    {
+        return $this->products()->pluck('category_id')->unique()->toArray();
     }
 }

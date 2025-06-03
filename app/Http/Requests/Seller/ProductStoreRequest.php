@@ -22,10 +22,8 @@ class ProductStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:20480', // 20MB = 20480KB
         ];
     }
 
@@ -36,9 +34,13 @@ class ProductStoreRequest extends FormRequest
      */
     public function messages(): array
     {
-
         return [
-            'category_id.required' => 'Category is required'
+            'category_id.required' => 'Category is required.',
+            'category_id.exists' => 'Selected category is invalid.',
+            'image.required' => 'Product image is required.',
+            'image.image' => 'File must be an image.',
+            'image.mimes' => 'Image must be of type: jpeg, png, jpg, or webp.',
+            'image.max' => 'Image size cannot exceed 20MB.',
         ];
     }
 }

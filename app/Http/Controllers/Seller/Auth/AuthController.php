@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Seller\RegisterStepOneRequest;
 use App\Http\Requests\Seller\RegisterStepTwoRequest;
 use App\Http\Requests\Seller\RegisterStepThreeRequest;
+use App\Models\Admin\Category;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -49,7 +50,7 @@ class AuthController extends Controller
             $seller = User::create([
                 'name' => $request->full_name,
                 'email' => $request->email,
-                'phone_number' => preg_replace('/\D/', '', $request->phone_number),
+                'phone' => preg_replace('/\D/', '', $request->phone),
                 'password' => Hash::make($request->password),
                 'role_id' => $request->role_id ?? 3,
             ]);
@@ -85,7 +86,10 @@ class AuthController extends Controller
                 ->with('error', 'Please complete the first step of registration.');
         }
 
-        return view('seller.register_step_two');
+        // Get all non-deleted categories
+        $categories = Category::whereNull('deleted_at')->get();
+
+        return view('seller.register_step_two', compact('categories'));
     }
 
     /**

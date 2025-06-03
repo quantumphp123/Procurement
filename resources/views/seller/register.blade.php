@@ -85,10 +85,10 @@
                         {{ __('Enter Mobile Number') }} <span class="text-red-600">*</span>
                     </label>
                     <input
-                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('phone_number') border-red-500 @enderror"
-                        id="mobile" name="phone_number" type="text" value="{{ old('phone_number') }}"
+                        class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 @error('phone') border-red-500 @enderror"
+                        id="mobile" name="phone" type="text" value="{{ old('phone') }}"
                         autocomplete="tel" />
-                    @error('phone_number')
+                    @error('phone')
                         <div class="text-red-500 text-sm">{{ $message }}</div>
                     @enderror
                 </div>

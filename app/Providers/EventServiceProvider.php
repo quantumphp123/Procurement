@@ -3,7 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 use App\Events\EnquirySubmitted;
 use App\Listeners\HandleEnquirySubmission;
 use Illuminate\Auth\Events\Registered;
@@ -23,10 +22,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         EnquirySubmitted::class => [
             HandleEnquirySubmission::class,
-        ],
-        'App\Events\EnquiryCreated' => [
-            'App\Listeners\NotifySellersAboutEnquiry',
-        ],
+        ]
     ];
 
     /**

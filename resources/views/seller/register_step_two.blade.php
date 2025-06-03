@@ -90,20 +90,15 @@
                     <select id="product_category" name="product_category"
                         class="w-full border {{ $errors->has('product_category') ? 'border-red-500' : 'border-gray-300' }} rounded-md px-4 py-2 text-sm text-black focus:outline-none focus:ring-1 focus:ring-[#3b5de7]">
                         <option value="">{{ __('-- Select Category --') }}</option>
-                        <option value="Cement & Materials"
-                            {{ old('product_category') == 'Cement & Materials' ? 'selected' : '' }}>
-                            Cement & Materials
-                        </option>
-                        <option value="Electronics" {{ old('product_category') == 'Electronics' ? 'selected' : '' }}>
-                            Electronics
-                        </option>
-                        <option value="Furniture" {{ old('product_category') == 'Furniture' ? 'selected' : '' }}>
-                            Furniture
-                        </option>
-                        <option value="Food & Beverage"
-                            {{ old('product_category') == 'Food & Beverage' ? 'selected' : '' }}>
-                            Food & Beverage
-                        </option>
+                        @if(isset($categories) && $categories->count() > 0)
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    {{ old('product_category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        @else
+                        @endif
                     </select>
                     @error('product_category')
                         <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
