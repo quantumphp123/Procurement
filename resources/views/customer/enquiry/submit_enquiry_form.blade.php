@@ -28,6 +28,7 @@
         <form action="{{ route('customer.enquiry.items.store') }}" method="POST" id="enquiryForm">
             @csrf
             <input type="hidden" name="enquiry_id" value="{{ $enquiryId }}">
+            <input type="hidden" name="draft" value="0" id="draftStatus">
             @if($isEditMode)
                 <input type="hidden" name="is_edit" value="1">
             @endif
@@ -215,8 +216,9 @@
                     <!-- Save as Draft & Submit Buttons (right) -->
                     <div class="flex items-center gap-4">
                         <!-- Save as Draft -->
-                        <button
-                            class="flex items-center gap-2 px-6 py-2 rounded-full border border-gray-300 text-gray-800 hover:bg-gray-100 transition">
+                        <button type="button"
+                            class="flex items-center gap-2 px-6 py-2 rounded-full border border-gray-300 text-gray-800 hover:bg-gray-100 transition"
+                            onclick="saveAsDraft()">
                             Save as Draft
                             <img src="{{ asset('frontend/assets/images/fi_9511664.png') }}" alt="Draft" class="w-5 h-5">
                         </button>
@@ -243,6 +245,11 @@
 <script>
     let rowCounter = 1;
     const categories = @json($categories);
+
+    function saveAsDraft() {
+        document.getElementById('draftStatus').value = '1';
+        document.getElementById('enquiryForm').submit();
+    }
 
     // Show success modal if enquiry was submitted successfully
     @if(session('showSuccessModal'))

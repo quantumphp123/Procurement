@@ -65,6 +65,16 @@
                 </li>
 
                 <li class="nav-item">
+                    <a href="{{ route('admin.units.index') }}"
+                        class="nav-link {{ Request::is('admin/units*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-ruler"></i>
+                        <p>
+                            Units
+                        </p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
                     <a href="{{ route('admin.password.form') }}"
                         class="nav-link {{ Request::is('admin/change-password') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-lock"></i>

@@ -57,5 +57,6 @@ Route::prefix('seller')->group(function () {
 // Authentication routes (login, register, reset password)
 Auth::routes();
 
+
 require __DIR__ . '/admin.php';
 require __DIR__ . '/customer.php';

@@ -76,6 +76,19 @@
                                     class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
+                    <div class="col-lg-3 col-6">
+                        <!-- small box -->
+                        <div class="small-box bg-danger">
+                            <div class="inner">
+                                <h3>{{ $units }}</h3>
+                                <p>Total Units</p>
+                            </div>
+                            <div class="icon">
+                                    <i class="fas fa-ruler"></i>
+                            </div>
+                            <a href="{{ route('admin.units.index') }}" class="small-box-footer">More info <i
+                                    class="fas fa-arrow-circle-right"></i></a>
+                    </div>
                     <!-- /.row -->
                 </div><!-- /.container-fluid -->
             </div>

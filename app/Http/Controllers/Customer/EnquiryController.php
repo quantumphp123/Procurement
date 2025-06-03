@@ -155,10 +155,14 @@ class EnquiryController extends Controller
             
             $isEditMode = $request->boolean('is_edit', false);
             $enquiryId = $request->input('enquiry_id');
+            $isDraft = $request->boolean('draft', false);
             
             if ($isEditMode && $enquiryId) {
                 // Update existing enquiry
                 $enquiry = Enquiry::where('user_id', auth()->id())->findOrFail($enquiryId);
+                
+                // Update draft status in enquiries table
+                $enquiry->update(['drafted' => $isDraft]);
                 
                 // Delete existing items that are not in the updated list
                 $updatedItemIds = collect($request->items)->pluck('id')->filter()->toArray();
@@ -175,7 +179,7 @@ class EnquiryController extends Controller
                                 'item_description' => $item['item_description'],
                                 'manufacturer' => $item['manufacturer'],
                                 'qty' => $item['qty'],
-                                'remark' => $item['remark'] ?? null,
+                                'remark' => $item['remark'] ?? null
                             ]);
                     } else {
                         // Create new item
@@ -186,19 +190,20 @@ class EnquiryController extends Controller
                             'item_description' => $item['item_description'],
                             'manufacturer' => $item['manufacturer'],
                             'qty' => $item['qty'],
-                            'remark' => $item['remark'] ?? null,
+                            'remark' => $item['remark'] ?? null
                         ]);
                     }
                 }
                 
                 DB::commit();
                 
+                $message = $isDraft ? 'Enquiry saved as draft.' : 'Enquiry updated successfully.';
                 return redirect()->route('enquiry.management')
-                    ->with('message', 'Enquiry updated successfully.')
+                    ->with('message', $message)
                     ->with('alert-type', 'success');
                 
             } else {
-                // Create new enquiry (existing logic)
+                // Create new enquiry
                 $userId = auth()->id();
                 $latestUserEnquiry = Enquiry::where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
@@ -211,10 +216,11 @@ class EnquiryController extends Controller
                 
                 $enquiryNumber = 'ENQ_' . $userId . '_' . str_pad($number, 4, '0', STR_PAD_LEFT);
                 
-                // Create new enquiry
+                // Create new enquiry with draft status
                 $enquiry = Enquiry::create([
                     'user_id' => auth()->id(),
-                    'enquiry_number' => $enquiryNumber
+                    'enquiry_number' => $enquiryNumber,
+                    'drafted' => $isDraft
                 ]);
                 
                 // Store the enquiry items
@@ -226,18 +232,26 @@ class EnquiryController extends Controller
                         'item_description' => $item['item_description'],
                         'manufacturer' => $item['manufacturer'],
                         'qty' => $item['qty'],
-                        'remark' => $item['remark'] ?? null,
+                        'remark' => $item['remark'] ?? null
                     ]);
                 }
                 
                 DB::commit();
                 
-                // Fire the enquiry submitted event
-                event(new EnquirySubmitted($enquiry));
+                // Only fire the event if it's not a draft
+                if (!$isDraft) {
+                    event(new EnquirySubmitted($enquiry));
+                }
                 
-                return redirect()->route('submit.enquiry.form')
-                    ->with('showSuccessModal', true)
-                    ->with('enquiryNumber', $enquiryNumber);
+                if ($isDraft) {
+                    return redirect()->route('enquiry.management')
+                        ->with('message', 'Enquiry saved as draft.')
+                        ->with('alert-type', 'success');
+                } else {
+                    return redirect()->route('submit.enquiry.form')
+                        ->with('showSuccessModal', true)
+                        ->with('enquiryNumber', $enquiryNumber);
+                }
             }
                 
         } catch (\Exception $e) {
