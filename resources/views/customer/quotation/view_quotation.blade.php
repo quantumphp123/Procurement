@@ -35,9 +35,8 @@
                 <thead>
                     <tr class="bg-[#FFE5B4]">
                         <th class="text-left font-bold text-sm py-3 px-6 border border-[#FFE5B4]">Sl.No</th>
-                        <th class="text-left font-bold text-sm py-3 px-6 border border-[#FFE5B4]">Seller’s Name</th>
+                        <th class="text-left font-bold text-sm py-3 px-6 border border-[#FFE5B4]">Seller's Name</th>
                         <th class="text-center font-bold text-sm py-3 px-6 border border-[#FFE5B4]">Action</th>
-                        <th class="text-left font-bold text-sm py-3 px-6 border border-[#FFE5B4]">Document</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -50,8 +49,6 @@
                                 <i class="fas fa-eye text-xs"></i>
                             </button>
                         </td>
-                        <td class="text-xs font-normal py-4 px-6 text-[#D94A3B] underline cursor-pointer"
-                            onclick="document.getElementById('signin-modal').classList.remove('hidden')">View Doc</td>
                     </tr>
                     <tr class="border-b border-gray-100">
                         <td class="text-xs font-normal py-4 px-6">01</td>
@@ -62,10 +59,7 @@
                                 <i class="fas fa-eye text-xs"></i>
                             </button>
                         </td>
-                        <td class="text-xs font-normal py-4 px-6 text-[#D94A3B] underline cursor-pointer"
-                            onclick="document.getElementById('signin-modal1').classList.remove('hidden')">Request Doc</td>
                     </tr>
-
                 </tbody>
             </table>
         </div>

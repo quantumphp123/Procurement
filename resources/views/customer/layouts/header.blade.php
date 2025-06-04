@@ -158,12 +158,54 @@
         // Hamburger menu toggle
         const menuBtn = document.getElementById('menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
+        const loginToggleBtn = document.getElementById('login-toggle-btn');
+        const loginBox = document.getElementById('login-box');
+        const dropdownLoginBtn = document.getElementById('dropdown-login-btn');
+        const signinModal = document.getElementById('signin-modal');
+
+        // Login button click handlers
+        if (loginToggleBtn) {
+            loginToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (signinModal) {
+                    signinModal.classList.remove('hidden');
+                    signinModal.classList.add('flex');
+                }
+                if (loginBox) {
+                    loginBox.classList.toggle('hidden');
+                }
+            });
+        }
+
+        // Dropdown login button handler
+        if (dropdownLoginBtn && signinModal) {
+            dropdownLoginBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                signinModal.classList.remove('hidden');
+                signinModal.classList.add('flex');
+                if (loginBox) {
+                    loginBox.classList.add('hidden');
+                }
+            });
+        }
+
+        // Close modal when clicking outside
+        if (signinModal) {
+            signinModal.addEventListener('click', function(e) {
+                if (e.target === signinModal) {
+                    signinModal.classList.add('hidden');
+                    signinModal.classList.remove('flex');
+                }
+            });
+        }
+
+        // Hamburger menu handlers
         if (menuBtn && mobileMenu) {
             menuBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 mobileMenu.classList.toggle('hidden');
             });
-            // Optional: Hide menu when clicking outside
+
             document.addEventListener('click', function(e) {
                 if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
                     mobileMenu.classList.add('hidden');
@@ -171,21 +213,12 @@
             });
         }
 
-        // Add check for login-box and login-toggle-btn if they exist
-        const loginToggleBtn = document.getElementById('login-toggle-btn');
-        const loginBox = document.getElementById('login-box');
-
-        if (loginToggleBtn && loginBox) {
-             loginToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                loginBox.classList.toggle('hidden');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!loginBox.contains(e.target) && !loginToggleBtn.contains(e.target)) {
-                    loginBox.classList.add('hidden');
-                }
-            });
-        }
+        // Close dropdown if clicking outside
+        document.addEventListener('click', function(e) {
+            if (loginBox && !loginBox.contains(e.target) && !loginToggleBtn.contains(e.target)) {
+                loginBox.classList.add('hidden');
+            }
+        });
     });
 </script>
+</header>

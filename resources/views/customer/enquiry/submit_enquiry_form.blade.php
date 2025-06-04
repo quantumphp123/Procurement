@@ -25,9 +25,57 @@
         <h2 class="text-center text-3xl font-semibold mb-2">{{ $isEditMode ? 'Edit Enquiry' : 'Enquiry Table' }}</h2>
         <p class="text-left text-black text-xl mb-6">{{ $isEditMode ? 'Edit your enquiry details below' : 'Submit required details in below table' }}</p>
 
+        <!-- Display General Form Errors -->
+        @if($errors->any())
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">There were errors with your submission:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <!-- Display Session Messages -->
+        @if(session('message'))
+            <div class="mb-6 p-4 rounded-lg {{ session('alert-type') === 'error' ? 'bg-red-50 border-l-4 border-red-400' : 'bg-green-50 border-l-4 border-green-400' }}">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        @if(session('alert-type') === 'error')
+                            <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                            </svg>
+                        @else
+                            <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                        @endif
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm {{ session('alert-type') === 'error' ? 'text-red-700' : 'text-green-700' }}">
+                            {{ session('message') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <form action="{{ route('customer.enquiry.items.store') }}" method="POST" id="enquiryForm">
             @csrf
             <input type="hidden" name="enquiry_id" value="{{ $enquiryId }}">
+            <input type="hidden" name="draft" value="0" id="draftStatus">
             @if($isEditMode)
                 <input type="hidden" name="is_edit" value="1">
             @endif
@@ -35,19 +83,19 @@
             @if(!$enquiryId && !$isEditMode)
                 <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <div class="flex">
-                        <div class="flex-shrink-0">
+                        {{--  <div class="flex-shrink-0">
                             <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
                             </svg>
-                        </div>
-                        <div class="ml-3">
+                        </div>  --}}
+                        {{--  <div class="ml-3">
                             <p class="text-sm text-yellow-700">
                                 Please create an enquiry first before adding items.
                                 <a href="{{ route('customer.enquiry') }}" class="font-medium underline text-yellow-700 hover:text-yellow-600">
                                     Create Enquiry
                                 </a>
                             </p>
-                        </div>
+                        </div>  --}}
                     </div>
                 </div>
             @endif
@@ -94,32 +142,63 @@
                                     @if($isEditMode)
                                         <input type="hidden" name="items[{{ $index }}][id]" value="{{ $item->id }}">
                                     @endif
-                                    <select name="items[{{ $index }}][category_id]" class="w-full border border-gray-300 rounded px-2 py-1 item-select {{ $isViewMode ? 'bg-gray-50' : '' }}" {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    <select name="items[{{ $index }}][category_id]" 
+                                        class="w-full border {{ $errors->has('items.'.$index.'.category_id') ? 'border-red-500' : 'border-gray-300' }} rounded px-2 py-1 item-select {{ $isViewMode ? 'bg-gray-50' : '' }}" 
+                                        {{ $isViewMode ? 'disabled' : 'required' }}>
                                         <option value="">Select Item</option>
                                         @foreach($categories as $category)
-                                            <option value="{{ $category->id }}" {{ $item->category_id == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                            <option value="{{ $category->id }}" {{ old('items.'.$index.'.category_id', $item->category_id) == $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
                                         @endforeach
                                     </select>
+                                    @error('items.'.$index.'.category_id')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </td>
                                 <td class="border border-gray-300 px-3 py-2">
-                                    <input type="text" name="items[{{ $index }}][item_description]" value="{{ $item->item_description }}"
-                                        class="w-full border border-gray-300 rounded px-2 py-1 item-description {{ $isViewMode ? 'bg-gray-50' : '' }}" 
-                                        placeholder="Enter description" {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    <input type="text" 
+                                        name="items[{{ $index }}][item_description]" 
+                                        value="{{ old('items.'.$index.'.item_description', $item->item_description) }}"
+                                        class="w-full border {{ $errors->has('items.'.$index.'.item_description') ? 'border-red-500' : 'border-gray-300' }} rounded px-2 py-1 item-description {{ $isViewMode ? 'bg-gray-50' : '' }}" 
+                                        placeholder="Enter description" 
+                                        {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    @error('items.'.$index.'.item_description')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </td>
                                 <td class="border border-gray-300 px-3 py-2">
-                                    <input type="text" name="items[{{ $index }}][manufacturer]" value="{{ $item->manufacturer }}"
-                                        class="w-full border border-gray-300 rounded px-2 py-1 manufacturer {{ $isViewMode ? 'bg-gray-50' : '' }}" 
-                                        placeholder="Enter manufacturer" {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    <input type="text" 
+                                        name="items[{{ $index }}][manufacturer]" 
+                                        value="{{ old('items.'.$index.'.manufacturer', $item->manufacturer) }}"
+                                        class="w-full border {{ $errors->has('items.'.$index.'.manufacturer') ? 'border-red-500' : 'border-gray-300' }} rounded px-2 py-1 manufacturer {{ $isViewMode ? 'bg-gray-50' : '' }}" 
+                                        placeholder="Enter manufacturer" 
+                                        {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    @error('items.'.$index.'.manufacturer')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </td>
                                 <td class="border border-gray-300 px-3 py-2">
-                                    <input type="number" name="items[{{ $index }}][qty]" value="{{ $item->qty }}"
-                                        class="w-full border border-gray-300 rounded px-2 py-1 quantity {{ $isViewMode ? 'bg-gray-50' : '' }}" 
-                                        min="1" {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    <input type="number" 
+                                        name="items[{{ $index }}][qty]" 
+                                        value="{{ old('items.'.$index.'.qty', $item->qty) }}"
+                                        class="w-full border {{ $errors->has('items.'.$index.'.qty') ? 'border-red-500' : 'border-gray-300' }} rounded px-2 py-1 quantity {{ $isViewMode ? 'bg-gray-50' : '' }}" 
+                                        min="1" 
+                                        {{ $isViewMode ? 'disabled' : 'required' }}>
+                                    @error('items.'.$index.'.qty')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </td>
                                 <td class="border border-gray-300 px-3 py-2">
-                                    <input type="text" name="items[{{ $index }}][remark]" value="{{ $item->remark }}"
-                                        class="w-full border border-gray-300 rounded px-2 py-1 remarks {{ $isViewMode ? 'bg-gray-50' : '' }}" 
-                                        placeholder="Enter remarks" {{ $isViewMode ? 'disabled' : '' }}>
+                                    <input type="text" 
+                                        name="items[{{ $index }}][remark]" 
+                                        value="{{ old('items.'.$index.'.remark', $item->remark) }}"
+                                        class="w-full border {{ $errors->has('items.'.$index.'.remark') ? 'border-red-500' : 'border-gray-300' }} rounded px-2 py-1 remarks {{ $isViewMode ? 'bg-gray-50' : '' }}" 
+                                        placeholder="Enter remarks" 
+                                        {{ $isViewMode ? 'disabled' : '' }}>
+                                    @error('items.'.$index.'.remark')
+                                        <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </td>
                                 @if(!$isViewMode)
                                     <td class="border border-gray-300 px-3 py-2">
@@ -215,8 +294,9 @@
                     <!-- Save as Draft & Submit Buttons (right) -->
                     <div class="flex items-center gap-4">
                         <!-- Save as Draft -->
-                        <button
-                            class="flex items-center gap-2 px-6 py-2 rounded-full border border-gray-300 text-gray-800 hover:bg-gray-100 transition">
+                        <button type="button"
+                            class="flex items-center gap-2 px-6 py-2 rounded-full border border-gray-300 text-gray-800 hover:bg-gray-100 transition"
+                            onclick="saveAsDraft()">
                             Save as Draft
                             <img src="{{ asset('frontend/assets/images/fi_9511664.png') }}" alt="Draft" class="w-5 h-5">
                         </button>
@@ -243,6 +323,11 @@
 <script>
     let rowCounter = 1;
     const categories = @json($categories);
+
+    function saveAsDraft() {
+        document.getElementById('draftStatus').value = '1';
+        document.getElementById('enquiryForm').submit();
+    }
 
     // Show success modal if enquiry was submitted successfully
     @if(session('showSuccessModal'))
@@ -334,6 +419,19 @@
         }
         rowCounter = rows.length;
     }
+
+    // Add this to your existing JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Log form submission for debugging
+        document.getElementById('enquiryForm').addEventListener('submit', function(e) {
+            console.log('Form submitted with data:', new FormData(this));
+        });
+
+        // Show validation errors in console for debugging
+        @if($errors->any())
+            console.log('Validation errors:', @json($errors->all()));
+        @endif
+    });
 </script>
 @endpush
 

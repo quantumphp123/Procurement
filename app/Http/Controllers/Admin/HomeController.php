@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Category;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Admin\Unit;
 
 class HomeController extends Controller
 {
@@ -29,6 +30,7 @@ class HomeController extends Controller
         $users = User::where('role_id', '!=', 1)->count();
 
         $categories = Category::count();
-        return view('admin.layouts.dashboard', compact('users', 'categories'));
+        $units = Unit::where('status', true)->count();
+        return view('admin.layouts.dashboard', compact('users', 'categories', 'units'));
     }
 }

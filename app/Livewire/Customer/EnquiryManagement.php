@@ -17,6 +17,7 @@ class EnquiryManagement extends Component
     public $showDeleteModal = false;
     public $enquiryToDeleteId = null;
     public $enquiryToDeleteNumber = null;
+    public $deleteType = 'delete';
 
     protected $queryString = ['search', 'sort', 'activeTab'];
 
@@ -40,17 +41,40 @@ class EnquiryManagement extends Component
     {
         if ($this->enquiryToDeleteId) {
             $enquiry = Enquiry::where('user_id', Auth::id())->findOrFail($this->enquiryToDeleteId);
-            $enquiry->delete();
+            $enquiry->delete(); // This will now soft delete
             
-            session()->flash('message', 'Enquiry deleted successfully.');
+            session()->flash('message', 'Enquiry moved to trash successfully.');
             $this->cancelDelete(); // Hide modal after deletion
         }
     }
 
-    public function confirmDelete($enquiryId, $enquiryNumber)
+    public function restore($enquiryId)
+    {
+        $enquiry = Enquiry::withTrashed()
+            ->where('user_id', Auth::id())
+            ->findOrFail($enquiryId);
+            
+        $enquiry->restore();
+        
+        session()->flash('message', 'Enquiry restored successfully.');
+    }
+
+    public function forceDelete($enquiryId)
+    {
+        $enquiry = Enquiry::withTrashed()
+            ->where('user_id', Auth::id())
+            ->findOrFail($enquiryId);
+            
+        $enquiry->forceDelete();
+        
+        session()->flash('message', 'Enquiry permanently deleted.');
+    }
+
+    public function confirmDelete($enquiryId, $enquiryNumber, $type = 'delete')
     {
         $this->enquiryToDeleteId = $enquiryId;
         $this->enquiryToDeleteNumber = $enquiryNumber;
+        $this->deleteType = $type;
         $this->showDeleteModal = true;
     }
 
@@ -59,6 +83,7 @@ class EnquiryManagement extends Component
         $this->showDeleteModal = false;
         $this->enquiryToDeleteId = null;
         $this->enquiryToDeleteNumber = null;
+        $this->deleteType = 'delete';
     }
 
     public function render()
@@ -83,8 +108,8 @@ class EnquiryManagement extends Component
         $query->when($this->activeTab, function ($q) {
             return match ($this->activeTab) {
                 'deleted' => $q->onlyTrashed(),
-                'drafted' => $q->where('status', 'draft'),
-                default => $q,
+                'drafted' => $q->where('drafted', 1),
+                default => $q->whereNull('deleted_at'),
             };
         });
 
@@ -92,7 +117,7 @@ class EnquiryManagement extends Component
 
         return view('livewire.customer.enquiry-management', [
             'enquiries' => $enquiries,
-            'totalEnquiries' => Enquiry::where('user_id', Auth::id())->count()
+            'totalEnquiries' => Enquiry::where('user_id', Auth::id())->whereNull('deleted_at')->count()
         ]);
     }
 } 
