@@ -10,7 +10,7 @@ class PasswordController extends Controller
 {
     public function showChangePasswordForm()
     {
-        return view('backend.layouts.admin.password.change-password');
+        return view('admin.password.change-password');
     }
 
     public function updatePassword(UpdatePasswordRequest $request)

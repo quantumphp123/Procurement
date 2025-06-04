@@ -21,9 +21,18 @@ class ResetPasswordController extends Controller
     use ResetsPasswords;
 
     /**
-     * Where to redirect users after resetting their password.
+     * Get the post password reset redirect path.
      *
-     * @var string
+     * @return string
      */
-    protected $redirectTo = '/home';
+    protected function redirectTo()
+    {
+        $user = auth()->user();
+
+        if ($user && $user->role_id == 3) {
+            return '/seller/login';
+        }
+
+        return '/customer';
+    }
 }
