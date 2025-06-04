@@ -29,6 +29,7 @@ class SubmitEnquiryFormRequest extends FormRequest
             'items.*.category_id' => 'required|exists:categories,id',
             'items.*.item_description' => 'required|string|max:1000',
             'items.*.manufacturer' => 'required|string|max:255',
+            'items.*.unit_id' => 'required|exists:units,id',
             'items.*.qty' => 'required|integer|min:1|max:999999',
             'items.*.remark' => 'nullable|string|max:500',
         ];
@@ -60,6 +61,8 @@ class SubmitEnquiryFormRequest extends FormRequest
             'items.*.item_description.max' => 'Item description cannot exceed 1000 characters.',
             'items.*.manufacturer.required' => 'Manufacturer name is required.',
             'items.*.manufacturer.max' => 'Manufacturer name cannot exceed 255 characters.',
+            'items.*.unit_id.required' => 'Please select a unit.',
+            'items.*.unit_id.exists' => 'The selected unit is invalid.',
             'items.*.qty.required' => 'Quantity is required.',
             'items.*.qty.integer' => 'Quantity must be a whole number.',
             'items.*.qty.min' => 'Quantity must be at least 1.',
@@ -88,4 +91,4 @@ class SubmitEnquiryFormRequest extends FormRequest
             ]);
         }
     }
-} 
+}

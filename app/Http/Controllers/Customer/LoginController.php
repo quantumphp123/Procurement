@@ -109,7 +109,12 @@ class LoginController extends Controller
             }
 
             // Authentication and checks passed...
-            return redirect()->intended(route('website'));
+            return redirect()->intended(route('website'))->with([
+                'message' => 'Login successful!',
+                'alert-type' => 'success',
+            ]);
+            
+                
         }
         return back()->with('error', 'Invalid credentials.');
     }
@@ -119,6 +124,9 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('website');
+        return redirect()->route('website')->with([
+            'message' => 'Logout successful!',
+            'alert-type' => 'success',
+        ]);
     }
 }

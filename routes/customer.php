@@ -7,6 +7,8 @@ use App\Http\Controllers\Customer\LoginController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Customer\ContactUsController;
 use App\Http\Middleware\CustomerMiddleware;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\NewPasswordController;
 
 
 // Public routes (no auth required)
@@ -14,6 +16,8 @@ Route::get('customer/login', [LoginController::class, 'showLoginForm'])->name('c
 Route::post('customer/login', [LoginController::class, 'login'])->name('customer.login');
 Route::get('customer/register', [RegisterController::class, 'create'])->name('customer.register');
 Route::post('customer/register', [RegisterController::class, 'store'])->name('customer.store');
+
+
 
 Route::get('/customer', [EnquiryController::class, 'index'])->name('website');
 
@@ -31,7 +35,7 @@ Route::middleware([CustomerMiddleware::class])->prefix('customer')->group(functi
     Route::get('plan-selection', [LoginController::class, 'planSelection'])->name('customer.plan.selection');
     Route::post('update-plan', [RegisterController::class, 'updatePlan'])->name('customer.update.plan');
     Route::get('plan-status', [RegisterController::class, 'checkPlanStatus'])->name('customer.plan.status');
-
+    Route::get('customer-details', [RegisterController::class, 'customerDetails'])->name('customer.company.details');
     Route::get('contact-us', [ContactUsController::class, 'contactUs'])->name('customer.contact.us');
     Route::post('contact-us', [ContactUsController::class, 'store'])->name('customer.contact-us.store');
 });
@@ -45,3 +49,20 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return response()->json(['message' => 'Verification link sent!']);
 })->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
+
+// Password Reset Routes for Customers
+Route::get('/customer/forgot-password', [PasswordResetLinkController::class, 'create'])
+    ->middleware('guest')
+    ->name('customer.password.request');
+
+Route::post('/customer/forgot-password', [PasswordResetLinkController::class, 'store'])
+    ->middleware('guest')
+    ->name('customer.password.email');
+
+Route::get('/customer/reset-password/{token}', [NewPasswordController::class, 'create'])
+    ->middleware('guest')
+    ->name('customer.password.reset');
+
+Route::post('/customer/reset-password', [NewPasswordController::class, 'store'])
+    ->middleware('guest')
+    ->name('customer.password.update');

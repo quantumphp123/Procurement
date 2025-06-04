@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Events\EnquirySubmitted;
+use App\Models\Admin\Unit;
 
 class EnquiryController extends Controller
 {
@@ -46,7 +47,8 @@ class EnquiryController extends Controller
     {
         $customer = auth()->user()->customer;
         $categories = Category::all();
-        
+        $units = Unit::where('status', true)->get(); // Get active units
+
         $enquiryId = $request->input('id');
         $isEditMode = $request->boolean('edit', false);
         $isViewMode = $request->boolean('view', false);
@@ -70,12 +72,12 @@ class EnquiryController extends Controller
             $latestEnquiry = Enquiry::where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
                 ->first();
-            
+
             $enquiryNumber = $latestEnquiry ? $latestEnquiry->enquiry_number : null;
             $enquiryId = $latestEnquiry ? $latestEnquiry->id : null;
         }
-        
-        return view('customer.enquiry.submit_enquiry_form', compact('customer', 'categories', 'enquiryNumber', 'enquiryId', 'enquiryItems', 'isEditMode', 'isViewMode'));
+
+        return view('customer.enquiry.submit_enquiry_form', compact('customer', 'categories', 'units', 'enquiryNumber', 'enquiryId', 'enquiryItems', 'isEditMode', 'isViewMode'));
     }
 
     public function viewQuotation()
@@ -98,23 +100,17 @@ class EnquiryController extends Controller
     {
         try {
             DB::beginTransaction();
-            
-            $isEditMode = $request->boolean('is_edit', false);
-            $enquiryId = $request->input('enquiry_id');
+
             $isDraft = $request->boolean('draft', false);
-            
-            if ($isEditMode && $enquiryId) {
+            $isEdit = $request->boolean('is_edit', false);
+            $enquiryId = $request->input('enquiry_id');
+
+            if ($isEdit && $enquiryId) {
                 // Update existing enquiry
                 $enquiry = Enquiry::where('user_id', auth()->id())->findOrFail($enquiryId);
-                
-                // Update draft status in enquiries table
                 $enquiry->update(['drafted' => $isDraft]);
-                
-                // Delete existing items that are not in the updated list
-                $updatedItemIds = collect($request->items)->pluck('id')->filter()->toArray();
-                $enquiry->items()->whereNotIn('id', $updatedItemIds)->delete();
-                
-                // Update or create items
+
+                // Update or create enquiry items
                 foreach ($request->items as $item) {
                     if (isset($item['id'])) {
                         // Update existing item
@@ -124,6 +120,7 @@ class EnquiryController extends Controller
                                 'category_id' => $item['category_id'],
                                 'item_description' => $item['item_description'],
                                 'manufacturer' => $item['manufacturer'],
+                                'unit_id' => $item['unit_id'],
                                 'qty' => $item['qty'],
                                 'remark' => $item['remark'] ?? null
                             ]);
@@ -135,39 +132,40 @@ class EnquiryController extends Controller
                             'category_id' => $item['category_id'],
                             'item_description' => $item['item_description'],
                             'manufacturer' => $item['manufacturer'],
+                            'unit_id' => $item['unit_id'],
                             'qty' => $item['qty'],
                             'remark' => $item['remark'] ?? null
                         ]);
                     }
                 }
-                
+
                 DB::commit();
-                
+
                 $message = $isDraft ? 'Enquiry saved as draft.' : 'Enquiry updated successfully.';
                 return redirect()->route('enquiry.management')
                     ->with('message', $message)
                     ->with('alert-type', 'success');
-                
+
             } else {
                 // Create new enquiry
                 // Get the latest enquiry ID and increment it
                 $latestEnquiry = Enquiry::orderBy('id', 'desc')->first();
                 $nextId = $latestEnquiry ? $latestEnquiry->id + 1 : 1;
                 $userId = auth()->id();
-                
+
                 // Get the latest sequence number for this user
                 $latestUserEnquiry = Enquiry::where('user_id', $userId)
                     ->orderBy('created_at', 'desc')
                     ->first();
-                
+
                 $sequence = 1;
                 if ($latestUserEnquiry && preg_match('/ENQ_\d+_(\d+)/', $latestUserEnquiry->enquiry_number, $matches)) {
                     $sequence = (int)$matches[1] + 1;
                 }
-                
+
                 // Generate enquiry number with user ID and sequence
                 $enquiryNumber = 'ENQ_' . $userId . '_' . str_pad($sequence, 4, '0', STR_PAD_LEFT);
-                
+
                 // Create new enquiry with draft status
                 $enquiry = Enquiry::create([
                     'id' => $nextId, // Explicitly set the ID
@@ -175,7 +173,7 @@ class EnquiryController extends Controller
                     'enquiry_number' => $enquiryNumber,
                     'drafted' => $isDraft
                 ]);
-                
+
                 // Store the enquiry items
                 foreach ($request->items as $item) {
                     EnquiryItem::create([
@@ -184,18 +182,19 @@ class EnquiryController extends Controller
                         'category_id' => $item['category_id'],
                         'item_description' => $item['item_description'],
                         'manufacturer' => $item['manufacturer'],
+                        'unit_id' => $item['unit_id'],
                         'qty' => $item['qty'],
                         'remark' => $item['remark'] ?? null
                     ]);
                 }
-                
+
                 DB::commit();
-                
+
                 // Only fire the event if it's not a draft
                 if (!$isDraft) {
                     event(new EnquirySubmitted($enquiry));
                 }
-                
+
                 if ($isDraft) {
                     return redirect()->route('enquiry.management')
                         ->with('message', 'Enquiry saved as draft.')
@@ -206,7 +205,7 @@ class EnquiryController extends Controller
                         ->with('enquiryNumber', $enquiryNumber);
                 }
             }
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()

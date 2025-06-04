@@ -109,7 +109,7 @@ class EnquiryManagement extends Component
             return match ($this->activeTab) {
                 'deleted' => $q->onlyTrashed(),
                 'drafted' => $q->where('drafted', 1),
-                default => $q->whereNull('deleted_at'),
+                default => $q->whereNull('deleted_at')->where('drafted', 0),
             };
         });
 

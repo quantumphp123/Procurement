@@ -15,8 +15,9 @@ class EnquiryItem extends Model
         'item_description',
         'manufacturer',
         'qty',
+        'unit_id',
         'remark',
-        
+
     ];
 
     // Each item belongs to a single enquiry
