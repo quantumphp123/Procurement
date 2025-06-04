@@ -2,15 +2,16 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Seller\ProductController;
+use App\Http\Controllers\Seller\CustomerController;
 use App\Http\Controllers\Seller\EnquiryController;
 use App\Http\Controllers\Seller\DashboardController;
 use App\Http\Controllers\Seller\Auth\AuthController;
 use App\Http\Controllers\Seller\Auth\LoginController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\Seller\ModifiedOrdersController;
 use Laravel\Fortify\Http\Controllers\NewPasswordController;
 use Laravel\Fortify\Http\Controllers\PasswordResetLinkController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Controllers\Seller\ProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -184,4 +185,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/upgrade-plan', function () {
         return view('seller.upgrade-plan');
     })->name('upgrade.plan');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Customers Routes
+    |--------------------------------------------------------------------------
+    |
+    | User must be logged in to access these routes
+    |
+    */
+
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+   Route::get('/customers/{id?}', [CustomerController::class, 'show'])->name('customers.show');
 });

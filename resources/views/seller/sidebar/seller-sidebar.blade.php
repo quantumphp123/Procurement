@@ -64,12 +64,12 @@
 
             <!-- Customers -->
             <li class="relative py-2">
-                <a href="#"
-                    class="icon-link {{ request()->routeIs('seller.customers.*') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-lg"
+                <a href="{{ route('seller.customers.index') }}"
+                    class="icon-link {{ request()->routeIs('seller.customers.index') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-lg"
                     data-default="{{ asset('img/icons/customers.svg') }}"
                     data-hover="{{ asset('img/icons/customer-h.svg') }}"
                     data-active="{{ asset('img/icons/customer-h.svg') }}">
-                    <img src="{{ request()->routeIs('seller.customers.*') ? asset('img/icons/customer-h.svg') : asset('img/icons/customers.svg') }}"
+                    <img src="{{ request()->routeIs('seller.customers.index') ? asset('img/icons/customer-h.svg') : asset('img/icons/customers.svg') }}"
                         alt="customers icon">
                     <span>Customers</span>
                 </a>
@@ -170,11 +170,11 @@
             <!-- Enquiries -->
             <li class="relative py-2">
                 <a href="{{ route('seller.enquiries.index') }}"
-                    class="icon-link {{ request()->routeIs('seller.enquiries.*') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-md"
+                    class="icon-link {{ request()->routeIs('seller.enquiries.index') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-md"
                     data-default="{{ asset('img/icons/enquiries.svg') }}"
                     data-hover="{{ asset('img/icons/enquiries-h.svg') }}"
                     data-active="{{ asset('img/icons/enquiries-h.svg') }}">
-                    <img src="{{ request()->routeIs('seller.enquiries.*') ? asset('img/icons/enquiries-h.svg') : asset('img/icons/enquiries.svg') }}"
+                    <img src="{{ request()->routeIs('seller.enquiries.index') ? asset('img/icons/enquiries-h.svg') : asset('img/icons/enquiries.svg') }}"
                         alt="Enquiries icon">
                     <span>Enquires</span>
                 </a>
@@ -208,12 +208,12 @@
 
             <!-- Customers -->
             <li class="relative py-2">
-                <a href="#"
-                    class="icon-link {{ request()->routeIs('seller.customers.*') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-md"
+                <a href="{{ route('seller.customers.index') }}"
+                    class="icon-link {{ request()->routeIs('seller.customers.index') ? 'active bg-orange-500 text-white' : '' }} inline-flex gap-3 items-center w-full text-sm font-semibold transition-colors duration-200 hover:bg-orange-500 hover:text-white dark:hover:text-gray-200 dark:text-gray-100 p-2 rounded-md"
                     data-default="{{ asset('img/icons/customers.svg') }}"
                     data-hover="{{ asset('img/icons/customer-h.svg') }}"
                     data-active="{{ asset('img/icons/customer-h.svg') }}">
-                    <img src="{{ request()->routeIs('seller.customers.*') ? asset('img/icons/customer-h.svg') : asset('img/icons/customers.svg') }}"
+                    <img src="{{ request()->routeIs('seller.customers.index') ? asset('img/icons/customer-h.svg') : asset('img/icons/customers.svg') }}"
                         alt="customers icon">
                     <span>Customers</span>
                 </a>

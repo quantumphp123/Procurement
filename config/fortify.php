@@ -73,7 +73,7 @@ return [
     |
     */
 
-    'home' => '/seller/dashboard',
+    'home' => '/',
 
     /*
     |--------------------------------------------------------------------------
@@ -154,12 +154,6 @@ return [
             'confirmPassword' => true,
             // 'window' => 0,
         ]),
-    ],
-
-    'routes' => [
-        'verification.notice' => 'seller.verification.notice',
-        'verification.verify' => 'seller.verification.verify',
-        'verification.send' => 'seller.verification.send',
     ],
 
 ];
