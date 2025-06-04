@@ -21,16 +21,15 @@
         </nav>
 
 
-        <!-- Login Button (desktop) -->
-        <!-- Login/Register Button -->
+
         <div class="hidden md:flex">
             @if (auth()->check())
                 <div class="relative group">
                     <div class="flex items-center gap-2 bg-white text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm cursor-pointer group-hover:bg-orange-50"
                         id="user-menu-toggle">
                         Hey, {{ auth()->user()->customer->contact_person_name ?? 'User' }}
-                        <img src="{{ asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
-                            class="w-5 h-5" />
+                        <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
+                            class="w-5 h-5 rounded-full object-cover" />
                         <svg class="w-4 h-4 ml-1 text-orange-400" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -86,8 +85,8 @@
                 <button id="login-toggle-btn"
                     class="flex items-center gap-2 bg-white hover:bg-gray-100 text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm">
                     Login/Register
-                    <img src="{{ asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
-                        class="w-5 h-5" />
+                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
+                        class="w-5 h-5 rounded-full" />
                 </button>
             @endif
         </div>
@@ -120,16 +119,30 @@
     <div id="mobile-menu"
         class="md:hidden hidden fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-5xl bg-white rounded-xl shadow-md px-6 py-4 z-20">
         <nav class="flex flex-col space-y-2">
-            <a href="index.html" class="text-blue-600">Home</a>
-            <a href="enquirymangement.html" class="text-gray-500">Enquiry Management</a>
-            <a href="#" class="text-gray-500">My Orders</a>
+            <a href="{{ route('website') }}" class="text-blue-600">Home</a>
+            <a href="{{ route('enquiry.management') }}" class="text-gray-500">Enquiry Management</a>
+            <a href="{{ route('customer.my.orders') }}" class="text-gray-500">My Orders</a>
             <a href="#" class="text-gray-500">Help</a>
-            <a href="#" class="text-gray-500">Contact Us</a>
-            <button
-                class="mt-2 flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm">
-                Login/Register
-                <img src="{{ asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon" class="w-5 h-5">
-            </button>
+            <a href="{{ route('customer.contact.us') }}" class="text-gray-500">Contact Us</a>
+
+            @auth
+                <div class="flex flex-col space-y-2 border-t border-gray-200 pt-2 mt-2">
+                    <a href="{{ route('customer.company.details') }}" class="text-gray-700 font-medium">Hey, {{ auth()->user()->customer->contact_person_name ?? 'User' }}</a>
+                    <form method="POST" action="{{ route('customer.logout') }}">
+                        @csrf
+                        <button type="submit" class="text-red-500 font-medium">Logout</button>
+                    </form>
+                </div>
+            @endauth
+
+            @guest
+                <button
+                    id="login-toggle-btn-mobile"
+                    class="mt-2 flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm">
+                    Login/Register
+                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon" class="w-5 h-5 rounded-full">
+                </button>
+            @endguest
         </nav>
     </div>
 </header>

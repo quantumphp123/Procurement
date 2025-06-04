@@ -36,8 +36,10 @@ Route::middleware([CustomerMiddleware::class])->prefix('customer')->group(functi
     Route::post('update-plan', [RegisterController::class, 'updatePlan'])->name('customer.update.plan');
     Route::get('plan-status', [RegisterController::class, 'checkPlanStatus'])->name('customer.plan.status');
     Route::get('customer-details', [RegisterController::class, 'customerDetails'])->name('customer.company.details');
+    Route::put('customer-details', [RegisterController::class, 'updateCustomerDetails'])->name('customer.company.details.update');
     Route::get('contact-us', [ContactUsController::class, 'contactUs'])->name('customer.contact.us');
     Route::post('contact-us', [ContactUsController::class, 'store'])->name('customer.contact-us.store');
+    Route::post('update-profile-image', [RegisterController::class, 'updateProfileImage'])->name('customer.update.profile.image');
 });
 
 // Email verification routes
@@ -50,19 +52,4 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Verification link sent!']);
 })->middleware(['auth', 'throttle:6,1'])->name('verification.resend');
 
-// Password Reset Routes for Customers
-Route::get('/customer/forgot-password', [PasswordResetLinkController::class, 'create'])
-    ->middleware('guest')
-    ->name('customer.password.request');
 
-Route::post('/customer/forgot-password', [PasswordResetLinkController::class, 'store'])
-    ->middleware('guest')
-    ->name('customer.password.email');
-
-Route::get('/customer/reset-password/{token}', [NewPasswordController::class, 'create'])
-    ->middleware('guest')
-    ->name('customer.password.reset');
-
-Route::post('/customer/reset-password', [NewPasswordController::class, 'store'])
-    ->middleware('guest')
-    ->name('customer.password.update');

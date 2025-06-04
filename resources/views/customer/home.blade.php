@@ -1,13 +1,13 @@
 @extends('customer.layouts.app')
 
 @section('content')
-    <div>
+    <div class="relative">
         <!-- Background Image -->
-        <div class="absolute inset-0 bg-black bg-opacity-50" style="height:750px;">
+        <div class="absolute inset-0 bg-black bg-opacity-50 h-[960px] sm:h-[960px] md:h-[760px] lg:h-[760px] xl:h-[760px]">
             <img src="{{ asset('frontend/assets/images/banner.jpg') }}" alt="Background Image"
-                class="w-full h-full object-cover opacity-50">
+                class="w-full h-[960px] sm:h-[960px] md:h-[760px] lg:h-[760px] xl:h-[760px] object-cover opacity-50">
         </div>
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" style="height:750px;"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent h-[960px] sm:h-[960px] md:h-[760px] lg:h-[760px] xl:h-[760px]"></div>
         <!-- Main Content -->
         <main class="relative z-10 pt-35 pb-20 text-center px-4">
             <h1 class="text-sm mx-auto rounded-2xl mb-5" style="background:white; color:#3E57DA; width:250px; padding:10px; ">
@@ -32,7 +32,7 @@
 
             <!-- Heading and Subheading -->
             <div class="max-w-4xl mx-auto mb-12">
-                <h1 class="text-5xl font-bold text-white mb-2 leading-18" style="font-size:58px !important;">
+                <h1 class="font-bold text-white mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[58px] sm:leading-8 md:leading-10 lg:leading-18">
                     Register with us to get products delivered to you <span class="text-orange-500 ">worldwide</span>
                 </h1>
                 <p class="text-lg text-white mt-6">
@@ -314,43 +314,36 @@
             </div>
         </div>
     </section>
-    <section
-        class="relative w-7xl mx-auto rounded-4xl mt-10 mb-10 h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat "
-        style="background-image: url('{{ asset('frontend/assets/images/test.jpg') }}'); height:30em;">
+    <section class="relative max-w-7xl mx-auto rounded-4xl mt-10 mb-10 flex items-center justify-center bg-cover bg-center bg-no-repeat px-4 sm:px-8" style="background-image: url('{{ asset('frontend/assets/images/test.jpg') }}'); min-height: 22em; height: 30em;">
         <div class="absolute inset-0 bg-white/50"></div>
-
-        <div class="relative z-10 text-center max-w-4xl px-4">
-            <h2 class="text-orange-400 text-xl font-bold uppercase mb-6 tracking-wide">What Our Customers Say</h2>
-
-            <p class="text-black text-[25px] sm:text-2xl font-semibold leading-relaxed mb-10" style="font-size:22px;">
-                My <span class="text-black font-bold">"TradePro"</span> experience was nothing short of incredible.<br>
-                The procurement service made my experience unforgettable. I'll be back for more!
-            </p>
-
-            <div class="flex justify-center items-center mb-4">
-                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Aleea Thompson"
-                    class="w-16 h-16 rounded-full border-4 border-white shadow-lg">
-            </div>
-
-            <p class="text-black text-lg font-bold">Aleea Thompson</p>
-
-            <!-- Navigation arrows -->
-            <div class="absolute left-1 top-1/2 transform -translate-y-1/2">
-                <button aria-label="Previous testimonial"
-                    class="absolute left-0 flex items-center justify-center w-10 h-10 rounded-full bg-[#FF7A59] text-white hover:bg-[#ff8f72] transition">
-                    <i class="fas fa-arrow-left text-xs">
-                    </i>
-                </button>
-            </div>
-
-            <div class="absolute right-1 top-1/2 transform -translate-y-1/2">
-                <button aria-label="Previous testimonial"
-                    class="absolute left-0 flex items-center justify-center w-10 h-10 rounded-full bg-[#FF7A59] text-white hover:bg-[#ff8f72] transition">
-                    <i class="fas fa-arrow-right text-xs">
-                    </i>
-                </button>
-            </div>
+      
+        <div class="relative z-10 text-center max-w-4xl w-full px-2 sm:px-4 py-8 sm:py-12">
+          <h2 class="text-orange-400 text-lg sm:text-xl font-bold uppercase mb-4 sm:mb-6 tracking-wide">What Our Customers Say</h2>
+      
+          <p class="text-black text-base sm:text-xl md:text-2xl font-semibold leading-relaxed mb-6 sm:mb-10" style="font-size:18px;">
+            My <span class="text-black font-bold">"TradePro"</span> experience was nothing short of incredible.<br class="hidden sm:block">
+            The procurement service made my experience unforgettable. I'll be back for more!
+          </p>
+      
+          <div class="flex justify-center items-center mb-3 sm:mb-4">
+            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Aleea Thompson" class="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-4 border-white shadow-lg">
+          </div>
+      
+          <p class="text-black text-base sm:text-lg font-bold">Aleea Thompson</p>
+      
+          <!-- Navigation arrows -->
+          <div class="absolute left-2 sm:left-4 top-1/2 transform -translate-y-1/2">
+            <button aria-label="Previous testimonial" class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FF7A59] text-white hover:bg-[#ff8f72] transition">
+              <i class="fas fa-arrow-left text-xs"></i>
+            </button>
+          </div>
+      
+          <div class="absolute right-2 sm:right-4 top-1/2 transform -translate-y-1/2">
+            <button aria-label="Next testimonial" class="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#FF7A59] text-white hover:bg-[#ff8f72] transition">
+              <i class="fas fa-arrow-right text-xs"></i>
+            </button>
+          </div>
         </div>
-    </section>
+      </section>
     @include('customer.auth.signin-modal')
 @endsection

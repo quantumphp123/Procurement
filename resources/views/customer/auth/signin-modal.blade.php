@@ -113,6 +113,7 @@
         @endif
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
+            <input type="hidden" name="name" value="customer">
             <label class="block mb-1 text-sm font-medium text-gray-800">Email <span
                     class="text-red-500">*</span></label>
             <input type="email" name="email" required

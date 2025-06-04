@@ -15,64 +15,12 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Customer\VatDocument;
+use App\Http\Requests\Customer\UpdateCustomerDetailsRequest;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
-    // {
-    //     //
-    // }
 
-    // /**
-    //  * Show the form for creating a new resource.
-    //  */
-    // public function create()
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Store a newly created resource in storage.
-    //  */
-    // public function store(Request $request)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Display the specified resource.
-    //  */
-    // public function show(string $id)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Show the form for editing the specified resource.
-    //  */
-    // public function edit(string $id)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Update the specified resource in storage.
-    //  */
-    // public function update(Request $request, string $id)
-    // {
-    //     //
-    // }
-
-    // /**
-    //  * Remove the specified resource from storage.
-    //  */
-    // public function destroy(string $id)
-    // {
-    //     //
-    // }
 
 
 
@@ -178,22 +126,18 @@ class RegisterController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            return redirect()->route('customer.plan.selection')
-                ->with('message', 'Email already verified. Please select a plan.')
+            return redirect()->route('customer.login')
+                ->with('message', 'Email already verified. Please login to continue.')
                 ->with('alert-type', 'info');
         }
 
         $user->markEmailAsVerified();
 
-        // Log the user in after verification
-        auth()->login($user);
-
-        // Redirect to plan selection with trial period info
-        return redirect()->route('customer.plan.selection')
-            ->with('message', 'Email verified successfully! Please select your plan to start your 30-day trial.')
-            ->with('alert-type', 'success')
-            ->with('trial_starts_at', now())
-            ->with('trial_ends_at', now()->addDays(30));
+        // Don't log the user in automatically after verification
+        // Instead, redirect to login with success message
+        return redirect()->route('customer.login')
+            ->with('message', 'Email verified successfully! Please login to continue.')
+            ->with('alert-type', 'success');
     }
 
     public function updatePlan(Request $request)
@@ -311,4 +255,201 @@ class RegisterController extends Controller
             'status' => $status
         ]);
     }
+
+    public function customerDetails()
+    {
+        $user = auth()->user();
+        $customer = $user->customer;
+
+        return view('customer.account.customer_detail', [
+            'user' => $user,
+            'customer' => $customer
+        ]);
+    }
+
+    public function updateCustomerDetails(UpdateCustomerDetailsRequest $request)
+    {
+        try {
+            $user = auth()->user();
+            $customer = $user->customer;
+
+            // Debug information
+            Log::info('Update Customer Details Request:', [
+                'has_file' => $request->hasFile('profile_pic'),
+                'file_info' => $request->file('profile_pic') ? [
+                    'original_name' => $request->file('profile_pic')->getClientOriginalName(),
+                    'mime_type' => $request->file('profile_pic')->getMimeType(),
+                    'size' => $request->file('profile_pic')->getSize(),
+                ] : null,
+                'all_data' => $request->except(['profile_pic'])
+            ]);
+
+            DB::beginTransaction();
+
+            // Handle profile picture upload
+            if ($request->hasFile('profile_pic')) {
+                Log::info('Processing profile picture upload');
+
+                // Delete old profile picture if exists
+                if ($user->profile_pic) {
+                    Log::info('Deleting old profile picture', ['path' => $user->profile_pic]);
+                    Storage::disk('public')->delete($user->profile_pic);
+                }
+
+                $file = $request->file('profile_pic');
+                Log::info('Storing new profile picture', [
+                    'original_name' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'size' => $file->getSize()
+                ]);
+
+                // Ensure the directory exists
+                $directory = 'profile';
+                if (!Storage::disk('public')->exists($directory)) {
+                    Storage::disk('public')->makeDirectory($directory);
+                }
+
+                $path = $file->store($directory, 'public');
+                Log::info('File stored at path', ['path' => $path]);
+
+                if (!$path) {
+                    throw new \Exception('Failed to store the file');
+                }
+
+                // Update user with new profile picture
+                $user->update([
+                    'profile_pic' => $path,
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                ]);
+                Log::info('User updated with new profile picture', ['path' => $path]);
+            } else {
+                Log::info('No profile picture uploaded, updating user data only');
+                // Update user data without profile picture
+                $user->update([
+                    'email' => $request->email,
+                    'phone' => $request->phone,
+                    'address' => $request->address,
+                ]);
+            }
+
+            // Update customer data
+            $customer->update([
+                'company_name' => $request->company_name,
+                'contact_person_name' => $request->contact_person_name,
+                'contact_person_designation' => $request->contact_person_designation,
+            ]);
+
+            DB::commit();
+            Log::info('Company details updated successfully');
+
+            return redirect()->route('customer.company.details')->with([
+                'message' => 'Company details updated successfully.',
+                'alert-type' => 'success',
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update company details: ' . $e->getMessage(), [
+                'user_id' => $user->id,
+                'customer_id' => $customer->id,
+                'request_data' => $request->except(['profile_pic']),
+                'exception' => $e,
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Failed to update company details: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    // public function updateProfileImage(Request $request)
+    // {
+    //     try {
+    //         Log::info('Profile image upload started', [
+    //             'user_id' => auth()->id(),
+    //             'has_file' => $request->hasFile('profile_pic'),
+    //             'file_info' => $request->file('profile_pic') ? [
+    //                 'original_name' => $request->file('profile_pic')->getClientOriginalName(),
+    //                 'mime_type' => $request->file('profile_pic')->getMimeType(),
+    //                 'size' => $request->file('profile_pic')->getSize(),
+    //             ] : null
+    //         ]);
+
+    //         if (!$request->hasFile('profile_pic')) {
+    //             throw new \Exception('No file uploaded');
+    //         }
+
+    //         $request->validate([
+    //             'profile_pic' => 'required|file|mimes:jpg,jpeg,png|max:2048'
+    //         ]);
+
+    //         $user = auth()->user();
+
+    //         // Delete old profile picture if exists
+    //         if ($user->profile_pic) {
+    //             $oldPath = $user->profile_pic;
+    //             Log::info('Deleting old profile picture', ['path' => $oldPath]);
+    //             Storage::disk('public')->delete($oldPath);
+    //         }
+
+    //         $file = $request->file('profile_pic');
+    //         $fileName = 'profile_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+    //         Log::info('Attempting to store file', [
+    //             'file_name' => $fileName,
+    //             'original_name' => $file->getClientOriginalName(),
+    //             'mime_type' => $file->getMimeType(),
+    //             'size' => $file->getSize()
+    //         ]);
+
+    //         // Ensure the directory exists
+    //         $directory = 'profile';
+    //         if (!Storage::disk('public')->exists($directory)) {
+    //             Storage::disk('public')->makeDirectory($directory);
+    //         }
+
+    //         $path = $file->storeAs($directory, $fileName, 'public');
+
+    //         if (!$path) {
+    //             throw new \Exception('Failed to store the file');
+    //         }
+
+    //         Log::info('File stored successfully', ['path' => $path]);
+
+    //         // Update user with new profile picture
+    //         $user->profile_pic = $path;
+    //         $saved = $user->save();
+
+    //         if (!$saved) {
+    //             throw new \Exception('Failed to update user profile');
+    //         }
+
+    //         Log::info('Profile picture updated successfully', [
+    //             'user_id' => $user->id,
+    //             'file_path' => $path,
+    //             'full_url' => asset('storage/' . $path)
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => true,
+    //             'message' => 'Profile picture updated successfully',
+    //             'image_url' => asset('storage/' . $path)
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         Log::error('Failed to update profile picture: ' . $e->getMessage(), [
+    //             'user_id' => auth()->id(),
+    //             'exception' => $e,
+    //             'request_data' => $request->except(['profile_pic']),
+    //             'trace' => $e->getTraceAsString()
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'Failed to update profile picture: ' . $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
 }
