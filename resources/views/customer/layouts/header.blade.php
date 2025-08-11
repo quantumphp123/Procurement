@@ -28,8 +28,8 @@
                     <div class="flex items-center gap-2 bg-white text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm cursor-pointer group-hover:bg-orange-50"
                         id="user-menu-toggle">
                         Hey, {{ auth()->user()->customer->contact_person_name ?? 'User' }}
-                        <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
-                            class="w-5 h-5 rounded-full object-cover" />
+                        <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}"
+                            alt="User Icon" class="w-5 h-5 rounded-full object-cover" />
                         <svg class="w-4 h-4 ml-1 text-orange-400" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -40,7 +40,8 @@
                         <div class="px-6 pb-4 border-b border-gray-100">
                             <div class="font-semibold text-lg text-gray-800">
                                 {{ auth()->user()->customer->company_name ?? 'Company Name' }}</div>
-                            <div class="text-sm text-gray-500">{{ auth()->user()->email }}</div>
+                            <div class="text-sm text-gray-500 break-words max-w-[200px]">{{ auth()->user()->email }}
+                            </div>
                         </div>
                         <div class="py-2">
                             <a href="{{ route('customer.company.details') }}"
@@ -85,8 +86,8 @@
                 <button id="login-toggle-btn"
                     class="flex items-center gap-2 bg-white hover:bg-gray-100 text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm">
                     Login/Register
-                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon"
-                        class="w-5 h-5 rounded-full" />
+                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}"
+                        alt="User Icon" class="w-5 h-5 rounded-full" />
                 </button>
             @endif
         </div>
@@ -127,7 +128,8 @@
 
             @auth
                 <div class="flex flex-col space-y-2 border-t border-gray-200 pt-2 mt-2">
-                    <a href="{{ route('customer.company.details') }}" class="text-gray-700 font-medium">Hey, {{ auth()->user()->customer->contact_person_name ?? 'User' }}</a>
+                    <a href="{{ route('customer.company.details') }}" class="text-gray-700 font-medium">Hey,
+                        {{ auth()->user()->customer->contact_person_name ?? 'User' }}</a>
                     <form method="POST" action="{{ route('customer.logout') }}">
                         @csrf
                         <button type="submit" class="text-red-500 font-medium">Logout</button>
@@ -136,11 +138,11 @@
             @endauth
 
             @guest
-                <button
-                    id="login-toggle-btn-mobile"
+                <button id="login-toggle-btn-mobile"
                     class="mt-2 flex items-center justify-center gap-2 bg-white hover:bg-gray-100 text-orange-500 border border-orange-500 font-medium rounded-full px-4 py-2 text-sm">
                     Login/Register
-                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}" alt="User Icon" class="w-5 h-5 rounded-full">
+                    <img src="{{ auth()->user()->profile_pic ? asset('storage/' . auth()->user()->profile_pic) : asset('frontend/assets/images/icons8-user-32.png') }}"
+                        alt="User Icon" class="w-5 h-5 rounded-full">
                 </button>
             @endguest
         </nav>
